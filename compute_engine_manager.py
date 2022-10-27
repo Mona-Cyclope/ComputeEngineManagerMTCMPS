@@ -71,7 +71,7 @@ class ComputeEngine(metaclass=ABCMeta):
     def load(self): pass
     
     @abstractmethod
-    def process(self, client_id, data): pass
+    def process(self, data:list): pass
     
 class TestCE(ComputeEngine):
     
