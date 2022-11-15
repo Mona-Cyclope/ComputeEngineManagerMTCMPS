@@ -22,12 +22,12 @@ class ComputeEngineClient():
         self.ids_pool = np.random.permutation(np.arange(len(server_queues)))
         self.counter = 0
         
-    def request(self, in_data, block=True):
+    def request(self, in_data):
         self.counter = (self.counter + 1)%len(self.ids_pool)
         self.queue_id = self.ids_pool[self.counter]
         queue = self.server_queues[self.queue_id]
-        queue.put(self.client_id, in_data, block=block)
-        client_id,out_data = self.client_queue.get(block=block)
+        queue.put(self.client_id, in_data)
+        client_id,out_data = self.client_queue.get()
         return out_data
     
 class CommQueue(metaclass=ABCMeta):
@@ -36,10 +36,10 @@ class CommQueue(metaclass=ABCMeta):
     def __init__(self, id): pass
     
     @abstractmethod
-    def get(self, block=True): pass
+    def get(self): pass
     
     @abstractmethod
-    def put(self, request_id, reques_data, block=True): pass
+    def put(self, request_id, reques_data): pass
     
     @abstractmethod
     def empty(self): pass
@@ -51,11 +51,11 @@ class MTPCommQueue(CommQueue):
         self.id = id
         self.q = mtp.Queue()
         
-    def get(self, block=True):
-        return self.q.get(block=block)
+    def get(self):
+        return self.q.get(block=True)
 
-    def put(self, request_id, request_data, block=True):
-        return self.q.put([request_id, request_data], block=block)
+    def put(self, request_id, request_data):
+        return self.q.put([request_id, request_data], block=True)
     
     def empty(self):
         return self.q.empty()
