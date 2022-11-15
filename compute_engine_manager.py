@@ -4,6 +4,7 @@ import queue
 import random
 import logging
 import string
+import numpy as np
 from threading import Thread
 import time
 from abc import ABCMeta, abstractmethod
@@ -16,9 +17,12 @@ class ComputeEngineClient():
         self.server_queues = server_queues
         self.client_queue = client_queue
         self.queue_id = 0
+        self.ids_pool = np.random.permutation(np.arange(len(server_queues)))
+        self.counter = 0
         
     def request(self, in_data, block=True):
-        self.queue_id = random.randint(0, len(self.server_queues)-1)
+        self.counter = (self.counter + 1)%len(self.ids_pool)
+        self.queue_id = self.ids_pool[self.counter]
         queue = self.server_queues[self.queue_id]
         queue.put([self.client_id, in_data], block=block)
         out_data = self.client_queue.get(block=block)
